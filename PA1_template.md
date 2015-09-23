@@ -7,7 +7,8 @@ output:
 
 
 ## Loading and preprocessing the data
-```{r Loading and preprocessing data, echo=TRUE,results='hide'}
+
+```r
 #Libraries to help with data preprocessing and plotting
 library(plyr)
 library(dplyr)
@@ -22,15 +23,19 @@ activity<- activity %>% mutate(date=ymd(activity$date))
 
 
 ## What is mean total number of steps taken per day?
-```{r Mean steps per day, echo=TRUE, results='hide'}
+
+```r
 #Data summarized to report sum, mean and median steps per day
 steps_per_day<- na.omit(activity) %>% group_by(date) %>% summarize(sum(steps), mean(steps), median(steps))
 names(steps_per_day)<-c("date","total_steps","mean","median")
 ```
 
-```{r histogram_steps_per_day, fig.height=4,fig.width=6}
+
+```r
 with(steps_per_day,plot(date,total_steps,type="h", xlab="Date",ylab="Total Steps", main="Total Steps Per Day"))
 ```
+
+![plot of chunk histogram_steps_per_day](figure/histogram_steps_per_day-1.png) 
 
 ## What is the average daily activity pattern?
 
