@@ -28,16 +28,77 @@ steps_per_day<- na.omit(activity) %>% group_by(date) %>% summarize(sum(steps), m
 names(steps_per_day)<-c("date","total_steps","mean","median")
 ```
 
+```{r echo=TRUE}
+mean(steps_per_day$total_steps)
+```
+
+```{r echo=TRUE}
+median(steps_per_day$steps)
+```
+
 ```{r histogram_steps_per_day, fig.height=4,fig.width=6}
-with(steps_per_day,plot(date,total_steps,type="h", xlab="Date",ylab="Total Steps", main="Total Steps Per Day"))
+ggplot(steps_per_day,aes(x=total_steps))+ geom_histogram(aes(fill = ..count..)) + scale_fill_gradient("Count", low = "green", high = "red")
 ```
 
 ## What is the average daily activity pattern?
+```{r steps per interval, echo=TRUE}
+steps_interval<-activity%>%group_by(interval)%>%summarize(mean(steps,na.rm=TRUE))
+names(steps_interval)<-c("interval","average_steps")
+```
 
+```{r plot average steps per interval, fig.height=4,fig.width=6}
+ggplot(data=steps_interval,aes(x=interval,y=average_steps)) + geom_line(color="blue")
+```
 
+Interval with maximum number of average steps
+```{r}
+steps_interval[which.max(steps_interval$average_steps),]$interval
+```
 
 ## Imputing missing values
 
+Total missing values
+```{r echo=TRUE}
+sum(is.na(activity$steps))
+```
 
+Missing values imputed by substituting for average steps for interval
+```{r echo=TRUE}
+steps_for_interval<-function(interval){
+    steps_interval[steps_interval$interval==interval,]$steps
+}
+```
+
+New data set with missing values filled
+```{r echo=TRUE}
+new_activity<-activity
+count=0
+for(i in 1:nrow(new_activity)){
+    if(is.na(new_activity[i,]$steps)){
+        new_activity[i,]$steps<-steps_for_interval(new_activity[i,]$interval)
+        count=count+1
+    }
+}
+cat("Total ",count, "NA values were filled")  
+```
+
+Histogram of new activity data
+```{r Mean steps per day2, echo=TRUE, results='hide'}
+#Data summarized to report sum, mean and median steps per day
+steps_per_day2<- new_activity %>% group_by(date) %>% summarize(sum(steps), mean(steps), median(steps))
+names(steps_per_day2)<-c("date","total_steps","mean","median")
+```
+
+```{r echo=TRUE}
+mean(steps_per_day2$total_steps)
+```
+
+```{r echo=TRUE}
+median(steps_per_day2$steps)
+```
+
+```{r histogram_steps_per_day2, fig.height=4,fig.width=6}
+ggplot(steps_per_day2,aes(x=total_steps)) + geom_histogram(aes(fill = ..count..)) + scale_fill_gradient("Count", low = "green", high = "red")
+```
 
 ## Are there differences in activity patterns between weekdays and weekends?
